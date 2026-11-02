@@ -1,0 +1,245 @@
+
+<div class="dashboard-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <div class="brand-logo">EP</div>
+      <div>
+        <h2>Employee Payroll</h2>
+        <span>Management System</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">MAIN MENU</div>
+
+    <nav class="sidebar-nav">
+
+      <a routerLink="/dashboard">
+        <span class="nav-icon">▦</span>
+        Dashboard
+      </a>
+
+      <a routerLink="/attendance">
+        <span class="nav-icon">◷</span>
+        Attendance & Leave
+      </a>
+
+      <a routerLink="/salary">
+        <span class="nav-icon">₹</span>
+        Salary Details
+      </a>
+
+      <a routerLink="/payslips">
+        <span class="nav-icon">▤</span>
+        Payslip History
+      </a>
+
+      <a routerLink="/payment-status" routerLinkActive="active">
+        <span class="nav-icon">◉</span>
+        Payment Status
+      </a>
+
+      <a routerLink="/payment-queries">
+        <span class="nav-icon">✉</span>
+        Payment Queries
+      </a>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button (click)="logout()">↪ Logout</button>
+    </div>
+
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-area">
+
+    <!-- Header -->
+    <header class="top-header">
+
+      <div>
+        <h2>Payment Status</h2>
+        <p>Track your monthly salary payments</p>
+      </div>
+
+      <div class="header-profile">
+
+        <div class="profile-avatar">
+          {{ employee?.full_name?.charAt(0) || 'E' }}
+        </div>
+
+        <div class="profile-info">
+          <strong>{{ employee?.full_name || 'Employee' }}</strong>
+          <span>{{ employee?.designation || 'Employee' }}</span>
+        </div>
+
+      </div>
+
+    </header>
+
+    <!-- Payment Content -->
+    <section class="payment-content">
+
+      <!-- Page Heading -->
+      <div class="page-heading">
+        <div>
+          <h1>My Payment Status</h1>
+          <p>
+            View your salary payment history and track pending payments.
+          </p>
+        </div>
+
+        <button
+          class="refresh-button"
+          type="button"
+          (click)="loadPaymentStatus()"
+          [disabled]="loading">
+          ↻ Refresh
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-message" *ngIf="loading">
+        Loading payment information...
+      </div>
+
+      <!-- Error -->
+      <div class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <ng-container *ngIf="!loading && !errorMessage">
+
+        <!-- Summary Cards -->
+        <div class="payment-summary">
+
+          <div class="summary-card total-card">
+            <div class="summary-icon">₹</div>
+            <div class="summary-details">
+              <span>Total Payment Records</span>
+              <h2>{{ payments.length }}</h2>
+              <small>All salary periods</small>
+            </div>
+          </div>
+
+          <div class="summary-card paid-card">
+            <div class="summary-icon">✓</div>
+            <div class="summary-details">
+              <span>Paid Payments</span>
+              <h2>{{ paidCount }}</h2>
+              <small>Successfully paid</small>
+            </div>
+          </div>
+
+          <div class="summary-card pending-card">
+            <div class="summary-icon">◷</div>
+            <div class="summary-details">
+              <span>Pending Payments</span>
+              <h2>{{ pendingCount }}</h2>
+              <small>Awaiting payment</small>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Total Paid Amount -->
+        <div class="total-paid-panel">
+
+          <div>
+            <span>Total Salary Received</span>
+            <p>Combined amount of successfully paid salaries</p>
+          </div>
+
+          <strong>{{ formatCurrency(totalPaid) }}</strong>
+
+        </div>
+
+        <!-- Payment History -->
+        <div class="payment-history-panel">
+
+          <div class="section-heading">
+            <div>
+              <h3>Payment History</h3>
+              <p>Details of your monthly salary payments</p>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div class="table-container" *ngIf="payments.length > 0">
+
+            <table class="payment-table">
+
+              <thead>
+                <tr>
+                  <th>Pay Period</th>
+                  <th>Net Salary</th>
+                  <th>Payment Date</th>
+                  <th>Payment Status</th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                <tr *ngFor="let payment of payments">
+
+                  <td>
+                    <strong>{{ periodLabel(payment) }}</strong>
+                  </td>
+
+                  <td class="salary-amount">
+                    {{ formatCurrency(payment.net_salary) }}
+                  </td>
+
+                  <td>
+                    {{
+                      payment.payment_date
+                        ? (payment.payment_date | date:'dd MMM yyyy')
+                        : 'Not yet paid'
+                    }}
+                  </td>
+
+                  <td>
+                    <span
+                      class="payment-status-badge"
+                      [ngClass]="getPaymentStatusClass(payment.payment_status)">
+
+                      <span class="status-dot"></span>
+
+                      {{ payment.payment_status }}
+
+                    </span>
+                  </td>
+
+                </tr>
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+          <!-- Empty State -->
+          <div class="empty-state" *ngIf="payments.length === 0">
+
+            <div class="empty-icon">₹</div>
+
+            <h3>No Payment Records Found</h3>
+
+            <p>
+              Your salary payment information will appear here when available.
+            </p>
+
+          </div>
+
+        </div>
+
+      </ng-container>
+
+    </section>
+
+  </main>
+
+</div>

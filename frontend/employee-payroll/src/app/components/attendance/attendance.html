@@ -1,0 +1,253 @@
+
+<div class="dashboard-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <div class="brand-logo">EP</div>
+      <div>
+        <h2>Employee Payroll</h2>
+        <span>Management System</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">MAIN MENU</div>
+
+    <nav class="sidebar-nav">
+
+      <a routerLink="/dashboard">
+        <span class="nav-icon">▦</span>
+        Dashboard
+      </a>
+
+      <a routerLink="/attendance" routerLinkActive="active">
+        <span class="nav-icon">◷</span>
+        Attendance & Leave
+      </a>
+
+      <a routerLink="/salary" routerLinkActive="active">
+        <span class="nav-icon">₹</span>
+        Salary Details
+      </a>
+
+      <a routerLink="/payslips" routerLinkActive="active">
+        <span class="nav-icon">▤</span>
+        Payslip History
+      </a>
+
+      <a routerLink="/payment-status" routerLinkActive="active">
+        <span class="nav-icon">◉</span>
+        Payment Status
+      </a>
+
+      <a routerLink="/payment-queries" routerLinkActive="active">
+        <span class="nav-icon">✉</span>
+        Payment Queries
+      </a>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button (click)="logout()">↪ Logout</button>
+    </div>
+
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-area">
+
+    <header class="top-header">
+      <div>
+        <h2>Attendance & Leave</h2>
+        <p>View your daily attendance and leave details</p>
+      </div>
+
+      <div class="header-profile">
+        <div class="profile-avatar">
+          {{ employee?.full_name?.charAt(0) || 'E' }}
+        </div>
+
+        <div class="profile-info">
+          <strong>{{ employee?.full_name || 'Employee' }}</strong>
+          <span>{{ employee?.designation || 'Employee' }}</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="attendance-content">
+
+      <!-- Page Heading -->
+      <div class="page-heading">
+        <h1>My Attendance</h1>
+        <p>View your daily attendance and leave details</p>
+      </div>
+
+      <!-- Month Navigation -->
+      <div class="month-navigation">
+
+        <button
+          class="month-arrow"
+          (click)="previousMonth()"
+          aria-label="Previous month">
+          ‹
+        </button>
+
+        <div class="current-month">
+          {{ monthName }} {{ selectedYear }}
+        </div>
+
+        <button
+          class="month-arrow"
+          (click)="nextMonth()"
+          aria-label="Next month">
+          ›
+        </button>
+
+      </div>
+
+      <!-- Summary Tiles -->
+      <div class="attendance-summary">
+
+        <div class="summary-tile">
+          <strong>{{ presentDays }}</strong>
+          <span>Present</span>
+        </div>
+
+        <div class="summary-tile">
+          <strong>{{ leaveDays }}</strong>
+          <span>Leave</span>
+        </div>
+
+        <div class="summary-tile">
+          <strong>{{ holidayDays }}</strong>
+          <span>Holiday</span>
+        </div>
+
+        <div class="summary-tile">
+          <strong>{{ absentDays }}</strong>
+          <span>Absent</span>
+        </div>
+
+      </div>
+
+      <!-- Calendar -->
+      <div class="calendar-panel">
+
+        <div class="calendar-weekdays">
+          <div *ngFor="let day of ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']">
+            {{ day }}
+          </div>
+        </div>
+
+        <div class="calendar-grid">
+
+          <div
+            *ngFor="let day of calendarDays"
+            class="calendar-day"
+            [class.outside-month]="!day.isCurrentMonth"
+            [class.today]="day.isToday"
+            [ngClass]="getStatusClass(day.status)"
+            [title]="day.status || ''">
+
+            <span>{{ day.date }}</span>
+
+          </div>
+
+        </div>
+
+        <div class="calendar-legend">
+          <div><span class="legend-dot present-dot"></span> Present</div>
+          <div><span class="legend-dot leave-dot"></span> Leave</div>
+          <div><span class="legend-dot holiday-dot"></span> Holiday</div>
+          <div><span class="legend-dot absent-dot"></span> Absent</div>
+        </div>
+
+      </div>
+
+      <!-- Recent Attendance -->
+      <div class="recent-attendance">
+
+        <div class="section-heading">
+          <h3>Recent Attendance</h3>
+
+          <button
+            class="view-all-button"
+            (click)="toggleRecords()">
+            {{ showAllRecords ? 'Show Less' : 'View All' }}
+          </button>
+        </div>
+
+        <div class="loading-message" *ngIf="loading">
+          Loading attendance...
+        </div>
+
+        <div class="error-message" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <div class="table-wrapper" *ngIf="!loading">
+
+          <table *ngIf="recentRecords.length > 0; else noRecords">
+
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Day</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let record of recentRecords">
+
+                <td>
+                  {{ record.attendance_date | date:'dd MMM yyyy' }}
+                </td>
+
+                <td>
+                  {{ record.attendance_date | date:'EEE' }}
+                </td>
+
+                <td>
+                  <span
+                    class="status-badge"
+                    [ngClass]="statusClass(record.status)">
+                    {{ record.status }}
+                  </span>
+                </td>
+
+              </tr>
+            </tbody>
+
+          </table>
+
+          <ng-template #noRecords>
+            <div class="empty-state">
+              No attendance records found for this month.
+            </div>
+          </ng-template>
+
+        </div>
+
+        <button
+          class="report-button"
+          (click)="toggleIssueForm()">
+          {{ issueFormOpen ? 'Close' : 'Report Attendance Issue' }}
+        </button>
+
+        <div class="issue-note" *ngIf="issueFormOpen">
+          <strong>Report an attendance issue</strong>
+          <p>
+            The reporting form will be connected after we add the
+            attendance correction API to the Flask backend.
+          </p>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>

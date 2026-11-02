@@ -1,0 +1,135 @@
+
+<div class="login-page">
+
+  <div class="login-card">
+
+    <!-- Logo -->
+    
+<div class="login-logo">
+
+  <img
+    src="/images/payroll-logo.png"
+    alt="Employee Payroll System"
+    class="payroll-logo"
+  >
+
+      <h1>Employee Payroll System</h1>
+      <p>Welcome back</p>
+    </div>
+
+    <!-- Login Form -->
+    <form (ngSubmit)="onLogin()" #loginForm="ngForm">
+
+      <!-- Employee ID / Email -->
+      <div class="form-group">
+
+        <label for="email">Employee ID / Email</label>
+
+        <input
+          type="text"
+          id="email"
+          name="email"
+          [(ngModel)]="email"
+          placeholder="Enter your employee ID or Email"
+          autocomplete="username"
+          required
+        >
+
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+
+        <label for="password">Password</label>
+
+        <div class="password-wrapper">
+
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            name="password"
+            [(ngModel)]="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            required
+          >
+
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePassword()"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+          >
+            <svg *ngIf="!showPassword"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="2">
+
+              <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/>
+              <circle cx="12" cy="12" r="3"/>
+
+            </svg>
+
+            <svg *ngIf="showPassword"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="2">
+
+              <path d="M3 3l18 18"/>
+              <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/>
+              <path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a15 15 0 0 1-3.1 3.8"/>
+              <path d="M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7a10 10 0 0 0 3-.5"/>
+
+            </svg>
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- Remember Me / Forgot Password -->
+      <div class="login-options">
+
+        <label class="remember-option">
+
+          <input
+            type="checkbox"
+            name="rememberMe"
+            [(ngModel)]="rememberMe"
+          >
+
+          <span>Remember me</span>
+
+        </label>
+
+        <span class="forgot-password">
+          Forgot password?
+        </span>
+
+      </div>
+
+      <!-- Error -->
+      <div class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Login Button -->
+      <div class="login-action">
+
+        <button
+          type="submit"
+          class="login-button"
+          [disabled]="loading || loginForm.invalid"
+        >
+          {{ loading ? 'Logging in...' : 'Login' }}
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

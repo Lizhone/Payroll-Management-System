@@ -1,0 +1,301 @@
+
+<div class="dashboard-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <div class="brand-logo">EP</div>
+      <div>
+        <h2>Employee Payroll</h2>
+        <span>Management System</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">MAIN MENU</div>
+
+    <nav class="sidebar-nav">
+
+      <a routerLink="/dashboard">
+        <span class="nav-icon">▦</span>
+        Dashboard
+      </a>
+
+      <a routerLink="/attendance">
+        <span class="nav-icon">◷</span>
+        Attendance & Leave
+      </a>
+
+      <a routerLink="/salary" routerLinkActive="active">
+        <span class="nav-icon">₹</span>
+        Salary Details
+      </a>
+
+      <a routerLink="/payslips">
+        <span class="nav-icon">▤</span>
+        Payslip History
+      </a>
+
+      <a routerLink="/payment-status">
+        <span class="nav-icon">◉</span>
+        Payment Status
+      </a>
+
+      <a routerLink="/payment-queries">
+        <span class="nav-icon">✉</span>
+        Payment Queries
+      </a>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button (click)="logout()">↪ Logout</button>
+    </div>
+
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-area">
+
+    <!-- Header -->
+    <header class="top-header">
+
+      <div>
+        <h2>Salary Details</h2>
+        <p>View your salary breakdown for the selected month</p>
+      </div>
+
+      <div class="header-profile">
+
+        <div class="profile-avatar">
+          {{ employee?.full_name?.charAt(0) || 'E' }}
+        </div>
+
+        <div class="profile-info">
+          <strong>{{ employee?.full_name || 'Employee' }}</strong>
+          <span>{{ employee?.designation || 'Employee' }}</span>
+        </div>
+
+      </div>
+
+    </header>
+
+    <!-- Salary Content -->
+    <section class="salary-content">
+
+      <!-- Page Heading -->
+      <div class="page-heading">
+        <div>
+          <h1>My Salary</h1>
+          <p>Review your earnings, deductions and net salary.</p>
+        </div>
+      </div>
+
+      <!-- Period Selector -->
+      <div class="period-selector">
+
+        <label for="salaryPeriod">Salary Period</label>
+
+        <select
+          id="salaryPeriod"
+          [(ngModel)]="selectedIndex"
+          (ngModelChange)="onPeriodChange()"
+          [disabled]="salaryRecords.length === 0">
+
+          <option
+            *ngFor="let record of salaryRecords; let i = index"
+            [ngValue]="i">
+
+            {{ periodLabel(record) }}
+
+          </option>
+
+        </select>
+
+      </div>
+
+      <!-- Loading Message -->
+      <div class="loading-message" *ngIf="loading">
+        Loading salary details...
+      </div>
+
+      <!-- Error Message -->
+      <div class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Salary Details -->
+      <ng-container *ngIf="!loading && selectedSalary as salary">
+
+        <!-- Salary Period and Status -->
+        <div class="salary-period-info">
+
+          <div>
+            <span>Selected Pay Period</span>
+            <strong>{{ monthName }} {{ salary.salary_year }}</strong>
+          </div>
+
+          <div>
+            <span>Payment Status</span>
+
+            <strong
+              class="status-badge"
+              [ngClass]="paymentStatusClass">
+
+              {{ salary.payment_status }}
+
+            </strong>
+          </div>
+
+        </div>
+
+        <!-- Earnings -->
+        <div class="salary-panel">
+
+          <div class="panel-title earnings-title">
+            <h3>Earnings</h3>
+          </div>
+
+          <div class="salary-row">
+            <span>Basic Salary</span>
+            <strong>
+              ₹ {{ formatCurrency(salary.basic_salary) }}
+            </strong>
+          </div>
+
+          <div class="salary-row">
+            <span>House Allowance</span>
+            <strong>
+              ₹ {{ formatCurrency(salary.house_allowance) }}
+            </strong>
+          </div>
+
+          <div class="salary-row">
+            <span>Transport Allowance</span>
+            <strong>
+              ₹ {{ formatCurrency(salary.transport_allowance) }}
+            </strong>
+          </div>
+
+          <div class="salary-row">
+            <span>Overtime</span>
+            <strong>
+              ₹ {{ formatCurrency(salary.overtime) }}
+            </strong>
+          </div>
+
+          <div class="salary-row total-row">
+            <span>Gross Salary</span>
+            <strong>
+              ₹ {{ formatCurrency(grossSalary) }}
+            </strong>
+          </div>
+
+        </div>
+
+        <!-- Deductions -->
+        <div class="salary-panel deductions-panel">
+
+          <div class="panel-title deductions-title">
+            <h3>Deductions</h3>
+          </div>
+
+          <div class="salary-row">
+            <span>Income Tax</span>
+            <strong>
+              ₹ {{ formatCurrency(salary.income_tax) }}
+            </strong>
+          </div>
+
+          <div class="salary-row">
+            <span>Provident Fund</span>
+            <strong>
+              ₹ {{ formatCurrency(salary.provident_fund) }}
+            </strong>
+          </div>
+
+          <div class="salary-row">
+            <span>Insurance</span>
+            <strong>
+              ₹ {{ formatCurrency(salary.insurance) }}
+            </strong>
+          </div>
+
+          <div class="salary-row">
+            <span>Other Deductions</span>
+            <strong>
+              ₹ {{ formatCurrency(salary.other_deductions) }}
+            </strong>
+          </div>
+
+          <div class="salary-row total-row">
+            <span>Total Deductions</span>
+            <strong>
+              ₹ {{ formatCurrency(totalDeductions) }}
+            </strong>
+          </div>
+
+        </div>
+
+        <!-- Net Salary -->
+        <div class="net-salary-panel">
+
+          <div>
+            <span>Net Salary</span>
+
+            <small>
+              Gross Salary − Total Deductions
+            </small>
+          </div>
+
+          <strong>
+            ₹ {{ formatCurrency(salary.net_salary) }}
+          </strong>
+
+        </div>
+
+        <!-- Payment Details -->
+        <div class="payment-information">
+
+          <div>
+            <span>Payment Date</span>
+
+            <strong>
+              {{ salary.payment_date
+                ? (salary.payment_date | date:'dd MMM yyyy')
+                : 'Not yet paid' }}
+            </strong>
+          </div>
+
+          <div>
+            <span>Payment Status</span>
+
+            <strong [ngClass]="paymentStatusClass">
+              {{ salary.payment_status }}
+            </strong>
+          </div>
+
+        </div>
+
+      </ng-container>
+
+      <!-- Empty State -->
+      <div
+        class="empty-state"
+        *ngIf="!loading && !errorMessage && salaryRecords.length === 0">
+
+        <div class="empty-icon">₹</div>
+
+        <h3>No Salary Records Found</h3>
+
+        <p>
+          Your salary details are not available yet.
+        </p>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>

@@ -1,0 +1,445 @@
+
+<div class="dashboard-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <div class="brand-logo">EP</div>
+      <div>
+        <h2>Employee Payroll</h2>
+        <span>Management System</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">MAIN MENU</div>
+
+    <nav class="sidebar-nav">
+
+      <a routerLink="/dashboard">
+        <span class="nav-icon">▦</span>
+        Dashboard
+      </a>
+
+      <a routerLink="/attendance">
+        <span class="nav-icon">◷</span>
+        Attendance & Leave
+      </a>
+
+      <a routerLink="/salary">
+        <span class="nav-icon">₹</span>
+        Salary Details
+      </a>
+
+      <a routerLink="/payslips" routerLinkActive="active">
+        <span class="nav-icon">▤</span>
+        Payslip History
+      </a>
+
+      <a routerLink="/payment-status">
+        <span class="nav-icon">◉</span>
+        Payment Status
+      </a>
+
+      <a routerLink="/payment-queries">
+        <span class="nav-icon">✉</span>
+        Payment Queries
+      </a>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button (click)="logout()">↪ Logout</button>
+    </div>
+
+  </aside>
+
+  <!-- Main Area -->
+  <main class="main-area">
+
+    <!-- Header -->
+    <header class="top-header">
+
+      <div>
+        <h2>Payslip History</h2>
+        <p>View and download your monthly payslips</p>
+      </div>
+
+      <div class="header-profile">
+
+        <div class="profile-avatar">
+          {{ employee?.full_name?.charAt(0) || 'E' }}
+        </div>
+
+        <div class="profile-info">
+          <strong>{{ employee?.full_name || 'Employee' }}</strong>
+          <span>{{ employee?.designation || 'Employee' }}</span>
+        </div>
+
+      </div>
+
+    </header>
+
+    <!-- Payslip Content -->
+    <section class="payslip-content">
+
+      <div class="page-heading">
+        <h1>My Payslips</h1>
+        <p>View and download your recently paid payslips.</p>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-message" *ngIf="loading">
+        Loading your payslips...
+      </div>
+
+      <!-- Error -->
+      <div class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Payslip List -->
+      <div
+        class="payslip-list"
+        *ngIf="!loading && !errorMessage && payslips.length > 0">
+
+        <div
+          class="payslip-card"
+          *ngFor="let payslip of payslips">
+
+          <div class="document-icon">
+            <svg viewBox="0 0 32 36" fill="none">
+              <path d="M6 2H19L27 10V33H6V2Z"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linejoin="round"/>
+              <path d="M19 2V10H27"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linejoin="round"/>
+              <path d="M11 17H22M11 22H22M11 27H22"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <div class="payslip-period">
+            <strong>{{ periodLabel(payslip) }}</strong>
+            <span>Paid · {{ formatCurrency(payslip.net_salary) }}</span>
+          </div>
+
+          <div class="payslip-actions">
+
+            <button
+              type="button"
+              class="view-button"
+              (click)="viewPayslip(payslip)">
+              View
+            </button>
+
+            <button
+              type="button"
+              class="download-button"
+              title="Download payslip as PDF"
+              (click)="downloadPayslip(payslip)">
+
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 3V15M7 10L12 15L17 10"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+                <path d="M4 17V21H20V17"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+              </svg>
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Empty State -->
+      <div
+        class="empty-state"
+        *ngIf="!loading && !errorMessage && payslips.length === 0">
+
+        <div class="empty-icon">▤</div>
+
+        <h3>No Paid Payslips Available</h3>
+
+        <p>
+          Your payslips will appear here once your salary payments are marked as paid.
+        </p>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+<!-- View Payslip Modal -->
+<div
+  class="modal-overlay"
+  *ngIf="selectedPayslip as payslip"
+  (click)="closePayslip()">
+
+  <div
+    class="payslip-modal"
+    (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+
+      <div>
+        <h2>Salary Payslip</h2>
+        <p>{{ periodLabel(payslip) }}</p>
+      </div>
+
+      <button
+        class="close-button"
+        type="button"
+        (click)="closePayslip()">
+        ×
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <!-- Payslip Company -->
+      <div class="payslip-company">
+        <h2>Employee Payroll</h2>
+        <span>Salary Statement</span>
+      </div>
+
+      <!-- Employee Information -->
+      <div class="employee-payslip-info">
+
+        <div>
+          <span>Employee Name</span>
+          <strong>{{ employee?.full_name }}</strong>
+        </div>
+
+        <div>
+          <span>Designation</span>
+          <strong>{{ employee?.designation }}</strong>
+        </div>
+
+        <div>
+          <span>Pay Period</span>
+          <strong>{{ periodLabel(payslip) }}</strong>
+        </div>
+
+        <div>
+          <span>Payment Date</span>
+          <strong>
+            {{
+              payslip.payment_date
+                ? (payslip.payment_date | date:'dd MMM yyyy')
+                : '—'
+            }}
+          </strong>
+        </div>
+
+      </div>
+
+      <!-- Earnings -->
+      <h3 class="breakdown-heading">Earnings</h3>
+
+      <div class="breakdown-row">
+        <span>Basic Salary</span>
+        <strong>{{ formatCurrency(payslip.basic_salary) }}</strong>
+      </div>
+
+      <div class="breakdown-row">
+        <span>House Allowance</span>
+        <strong>{{ formatCurrency(payslip.house_allowance) }}</strong>
+      </div>
+
+      <div class="breakdown-row">
+        <span>Transport Allowance</span>
+        <strong>{{ formatCurrency(payslip.transport_allowance) }}</strong>
+      </div>
+
+      <div class="breakdown-row">
+        <span>Overtime</span>
+        <strong>{{ formatCurrency(payslip.overtime) }}</strong>
+      </div>
+
+      <div class="breakdown-row total-breakdown-row">
+        <span>Gross Salary</span>
+        <strong>
+          {{ formatCurrency(getGrossSalary(payslip)) }}
+        </strong>
+      </div>
+
+      <!-- Deductions -->
+      <h3 class="breakdown-heading deductions-heading">
+        Deductions
+      </h3>
+
+      <div class="breakdown-row">
+        <span>Income Tax</span>
+        <strong>{{ formatCurrency(payslip.income_tax) }}</strong>
+      </div>
+
+      <div class="breakdown-row">
+        <span>Provident Fund</span>
+        <strong>{{ formatCurrency(payslip.provident_fund) }}</strong>
+      </div>
+
+      <div class="breakdown-row">
+        <span>Insurance</span>
+        <strong>{{ formatCurrency(payslip.insurance) }}</strong>
+      </div>
+
+      <div class="breakdown-row">
+        <span>Other Deductions</span>
+        <strong>{{ formatCurrency(payslip.other_deductions) }}</strong>
+      </div>
+
+      <div class="breakdown-row total-breakdown-row">
+        <span>Total Deductions</span>
+        <strong>
+          {{ formatCurrency(getTotalDeductions(payslip)) }}
+        </strong>
+      </div>
+
+      <!-- Net Salary -->
+      <div class="net-salary-row">
+        <span>Net Salary</span>
+        <strong>{{ formatCurrency(payslip.net_salary) }}</strong>
+      </div>
+
+      <div class="paid-stamp">PAID</div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button
+        class="close-modal-button"
+        type="button"
+        (click)="closePayslip()">
+        Close
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Printable Payslip -->
+<div class="print-area" *ngIf="selectedPayslip as payslip">
+
+  <div class="print-header">
+    <h1>Employee Payroll</h1>
+    <h2>Salary Payslip</h2>
+    <p>{{ periodLabel(payslip) }}</p>
+  </div>
+
+  <!-- Employee Details -->
+  <div class="print-employee">
+    <p>
+      <strong>Employee:</strong>
+      {{ employee?.full_name }}
+    </p>
+
+    <p>
+      <strong>Designation:</strong>
+      {{ employee?.designation }}
+    </p>
+
+    <p>
+      <strong>Pay Period:</strong>
+      {{ periodLabel(payslip) }}
+    </p>
+
+    <p>
+      <strong>Payment Date:</strong>
+      {{
+        payslip.payment_date
+          ? (payslip.payment_date | date:'dd MMM yyyy')
+          : '—'
+      }}
+    </p>
+  </div>
+
+  <!-- Earnings -->
+  <h3>Salary Earnings</h3>
+
+  <table>
+    <tr>
+      <td>Basic Salary</td>
+      <td>{{ formatCurrency(payslip.basic_salary) }}</td>
+    </tr>
+
+    <tr>
+      <td>House Allowance</td>
+      <td>{{ formatCurrency(payslip.house_allowance) }}</td>
+    </tr>
+
+    <tr>
+      <td>Transport Allowance</td>
+      <td>{{ formatCurrency(payslip.transport_allowance) }}</td>
+    </tr>
+
+    <tr>
+      <td>Overtime</td>
+      <td>{{ formatCurrency(payslip.overtime) }}</td>
+    </tr>
+
+    <tr class="print-total">
+      <td>Gross Salary</td>
+      <td>{{ formatCurrency(getGrossSalary(payslip)) }}</td>
+    </tr>
+  </table>
+
+  <!-- Deductions -->
+  <h3>Salary Deductions</h3>
+
+  <table>
+    <tr>
+      <td>Income Tax</td>
+      <td>{{ formatCurrency(payslip.income_tax) }}</td>
+    </tr>
+
+    <tr>
+      <td>Provident Fund</td>
+      <td>{{ formatCurrency(payslip.provident_fund) }}</td>
+    </tr>
+
+    <tr>
+      <td>Insurance</td>
+      <td>{{ formatCurrency(payslip.insurance) }}</td>
+    </tr>
+
+    <tr>
+      <td>Other Deductions</td>
+      <td>{{ formatCurrency(payslip.other_deductions) }}</td>
+    </tr>
+
+    <tr class="print-total">
+      <td>Total Deductions</td>
+      <td>{{ formatCurrency(getTotalDeductions(payslip)) }}</td>
+    </tr>
+
+    <tr class="print-net">
+      <td>Net Salary</td>
+      <td>{{ formatCurrency(payslip.net_salary) }}</td>
+    </tr>
+
+  </table>
+
+  <p class="print-paid">PAYMENT STATUS: PAID</p>
+
+</div>

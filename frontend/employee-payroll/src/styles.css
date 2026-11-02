@@ -1,0 +1,106 @@
+
+/* =====================================
+   EMPLOYEE PAYROLL - GLOBAL THEME
+===================================== */
+
+:root {
+  /* Primary Colors */
+  --primary-color: #142D4E;
+  --accent-color: #159A91;
+
+  /* Background Colors */
+  --background-color: #F5F8FC;
+  --card-background: #FFFFFF;
+
+  /* Status Colors */
+  --paid-color: #16A36A;
+  --pending-color: #E9A23B;
+  --rejected-color: #DC4C4C;
+
+  /* Text Colors */
+  --text-primary: #142D4E;
+  --text-secondary: #718096;
+  --text-light: #FFFFFF;
+
+  /* Borders and Shadows */
+  --border-color: #E5EAF1;
+  --card-shadow: 0 3px 15px rgba(20, 45, 78, 0.06);
+
+  /* Border Radius */
+  --border-radius: 10px;
+}
+
+/* Global Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--background-color);
+  color: var(--text-primary);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--primary-color);
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Common Card */
+.card {
+  background: var(--card-background);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
+}
+
+/* Primary Button */
+.btn-primary {
+  background: var(--accent-color);
+  color: var(--text-light);
+  border: none;
+  padding: 11px 20px;
+  border-radius: 7px;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #117F78;
+}
+
+/* Status Indicators */
+.status-paid {
+  color: var(--paid-color);
+  background: #E9F7F0;
+}
+
+.status-pending {
+  color: var(--pending-color);
+  background: #FFF6E8;
+}
+
+.status-rejected {
+  color: var(--rejected-color);
+  background: #FDEEEE;
+}

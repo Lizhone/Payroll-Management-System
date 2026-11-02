@@ -1,0 +1,263 @@
+
+<div class="dashboard-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <div class="brand-logo">EP</div>
+      <div>
+        <h2>Employee Payroll</h2>
+        <span>Management System</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">MAIN MENU</div>
+
+    <nav class="sidebar-nav">
+
+      <a routerLink="/dashboard" routerLinkActive="active"
+         [routerLinkActiveOptions]="{exact:true}">
+        <span class="nav-icon">▦</span>
+        Dashboard
+      </a>
+
+      <a routerLink="/attendance" routerLinkActive="active">
+        <span class="nav-icon">◷</span>
+        Attendance & Leave
+      </a>
+
+      <a routerLink="/salary" routerLinkActive="active">
+        <span class="nav-icon">₹</span>
+        Salary Details
+      </a>
+
+      <a routerLink="/payslips" routerLinkActive="active">
+        <span class="nav-icon">▤</span>
+        Payslip History
+      </a>
+
+      <a routerLink="/payment-status" routerLinkActive="active">
+        <span class="nav-icon">◉</span>
+        Payment Status
+      </a>
+
+      <a routerLink="/payment-queries" routerLinkActive="active">
+        <span class="nav-icon">✉</span>
+        Payment Queries
+      </a>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button (click)="logout()">
+        <span>↪</span> Logout
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- Main Area -->
+  <main class="main-area">
+
+    <!-- Header -->
+    <header class="top-header">
+
+      <div>
+        <h2>Employee Dashboard</h2>
+        <p>Welcome to your payroll workspace</p>
+      </div>
+
+      <div class="header-profile">
+        <div class="profile-avatar">
+          {{ employee?.full_name?.charAt(0) || 'E' }}
+        </div>
+
+        <div class="profile-info">
+          <strong>{{ employee?.full_name || 'Employee' }}</strong>
+          <span>{{ employee?.designation || 'Employee' }}</span>
+        </div>
+      </div>
+
+    </header>
+
+    <!-- Content -->
+    <section class="dashboard-content">
+
+      <div class="welcome-section">
+        <div>
+          <h1>Hello, {{ employee?.full_name || 'Employee' }}!</h1>
+          <p>Here's an overview of your employment and payroll information.</p>
+        </div>
+
+        <div class="employee-code">
+          Employee ID:
+          <strong>{{ employee?.employee_code || '—' }}</strong>
+        </div>
+      </div>
+
+      <div class="loading-message" *ngIf="loading">
+        Loading your dashboard information...
+      </div>
+
+      <div class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="summary-grid">
+
+        <div class="summary-card">
+          <div class="card-icon salary-icon">₹</div>
+          <div>
+            <span>Net Monthly Salary</span>
+            <h2>{{ salary | currency:'INR':'symbol':'1.0-0' }}</h2>
+            <small>Latest salary record</small>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="card-icon present-icon">✓</div>
+          <div>
+            <span>Present Days</span>
+            <h2>{{ attendance.Present }}</h2>
+            <small>Recorded attendance</small>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="card-icon leave-icon">◷</div>
+          <div>
+            <span>Leave Days</span>
+            <h2>{{ attendance.Leave }}</h2>
+            <small>Recorded leave</small>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="card-icon pending-icon">!</div>
+          <div>
+            <span>Pending Payments</span>
+            <h2>{{ pendingCount }}</h2>
+            <small>Awaiting payment</small>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Attendance and Payment -->
+      <div class="dashboard-grid">
+
+        <div class="content-card">
+
+          <div class="section-heading">
+            <div>
+              <h3>Attendance Overview</h3>
+              <p>Your recorded attendance summary</p>
+            </div>
+
+            <button (click)="navigate('/attendance')">
+              View Details →
+            </button>
+          </div>
+
+          <div class="attendance-stats">
+
+            <div>
+              <span class="dot present-dot"></span>
+              <span>Present</span>
+              <strong>{{ attendance.Present }}</strong>
+            </div>
+
+            <div>
+              <span class="dot absent-dot"></span>
+              <span>Absent</span>
+              <strong>{{ attendance.Absent }}</strong>
+            </div>
+
+            <div>
+              <span class="dot leave-dot"></span>
+              <span>Leave</span>
+              <strong>{{ attendance.Leave }}</strong>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="content-card">
+
+          <div class="section-heading">
+            <div>
+              <h3>Payment Overview</h3>
+              <p>Salary payment summary</p>
+            </div>
+
+            <button (click)="navigate('/payment-status')">
+              View Details →
+            </button>
+          </div>
+
+          <div class="payment-stats">
+
+            <div class="payment-item">
+              <span class="status-badge paid">Paid</span>
+              <strong>{{ paidCount }}</strong>
+            </div>
+
+            <div class="payment-item">
+              <span class="status-badge pending">Pending</span>
+              <strong>{{ pendingCount }}</strong>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="content-card quick-actions">
+
+        <div class="section-heading">
+          <div>
+            <h3>Quick Access</h3>
+            <p>Navigate to your employee services</p>
+          </div>
+        </div>
+
+        <div class="quick-action-grid">
+
+          <button (click)="navigate('/attendance')">
+            <span>◷</span>
+            <strong>Attendance</strong>
+            <small>View attendance records</small>
+          </button>
+
+          <button (click)="navigate('/salary')">
+            <span>₹</span>
+            <strong>Salary Details</strong>
+            <small>View salary breakdown</small>
+          </button>
+
+          <button (click)="navigate('/payslips')">
+            <span>▤</span>
+            <strong>Payslips</strong>
+            <small>Access salary slips</small>
+          </button>
+
+          <button (click)="navigate('/payment-queries')">
+            <span>✉</span>
+            <strong>Payment Queries</strong>
+            <small>Submit a payment query</small>
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>

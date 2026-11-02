@@ -1,0 +1,328 @@
+
+<div class="dashboard-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <div class="brand-logo">EP</div>
+      <div>
+        <h2>Employee Payroll</h2>
+        <span>Management System</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">MAIN MENU</div>
+
+    <nav class="sidebar-nav">
+
+      <a routerLink="/dashboard">
+        <span class="nav-icon">▦</span>
+        Dashboard
+      </a>
+
+      <a routerLink="/attendance">
+        <span class="nav-icon">◷</span>
+        Attendance & Leave
+      </a>
+
+      <a routerLink="/salary">
+        <span class="nav-icon">₹</span>
+        Salary Details
+      </a>
+
+      <a routerLink="/payslips">
+        <span class="nav-icon">▤</span>
+        Payslip History
+      </a>
+
+      <a routerLink="/payment-status">
+        <span class="nav-icon">◉</span>
+        Payment Status
+      </a>
+
+      <a routerLink="/payment-queries" routerLinkActive="active">
+        <span class="nav-icon">✉</span>
+        Payment Queries
+      </a>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button (click)="logout()">↪ Logout</button>
+    </div>
+
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-area">
+
+    <!-- Header -->
+    <header class="top-header">
+
+      <div>
+        <h2>Payment Queries</h2>
+        <p>Raise and track your salary-related queries</p>
+      </div>
+
+      <div class="header-profile">
+
+        <div class="profile-avatar">
+          {{ employee?.full_name?.charAt(0) || 'E' }}
+        </div>
+
+        <div class="profile-info">
+          <strong>{{ employee?.full_name || 'Employee' }}</strong>
+          <span>{{ employee?.designation || 'Employee' }}</span>
+        </div>
+
+      </div>
+
+    </header>
+
+    <!-- Page Content -->
+    <section class="queries-content">
+
+      <!-- Page Heading -->
+      <div class="page-heading">
+        <div>
+          <h1>Payment Queries</h1>
+          <p>
+            Have a salary or payment issue? Submit a query and track its progress.
+          </p>
+        </div>
+      </div>
+
+      <!-- Feedback Messages -->
+      <div class="success-message" *ngIf="successMessage">
+        <span>✓</span>
+        {{ successMessage }}
+      </div>
+
+      <div class="error-message" *ngIf="errorMessage">
+        <span>!</span>
+        {{ errorMessage }}
+      </div>
+
+      <!-- Submit Query Panel -->
+      <div class="query-form-panel">
+
+        <div class="panel-heading">
+          <div class="heading-icon">✉</div>
+
+          <div>
+            <h3>Submit a Payment Query</h3>
+            <p>Provide the details of your payment-related issue.</p>
+          </div>
+        </div>
+
+        <form (ngSubmit)="submitQuery()" #queryForm="ngForm">
+
+          <div class="form-row">
+
+            <!-- Query Type -->
+            <div class="form-group">
+
+              <label for="queryType">
+                Query Type <span>*</span>
+              </label>
+
+              <select
+                id="queryType"
+                name="queryType"
+                [(ngModel)]="queryType"
+                required>
+
+                <option value="" disabled>
+                  Select query type
+                </option>
+
+                <option
+                  *ngFor="let type of queryTypes"
+                  [value]="type">
+                  {{ type }}
+                </option>
+
+              </select>
+
+            </div>
+
+            <!-- Pay Period -->
+            <div class="form-group">
+
+              <label for="payPeriod">
+                Pay Period <span>*</span>
+              </label>
+
+              <select
+                id="payPeriod"
+                name="payPeriod"
+                [(ngModel)]="payPeriod"
+                required>
+
+                <option value="" disabled>
+                  Select salary period
+                </option>
+
+                <option
+                  *ngFor="let period of payPeriods"
+                  [value]="period">
+                  {{ period }}
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+          <!-- Description -->
+          <div class="form-group description-group">
+
+            <label for="description">
+              Issue Description <span>*</span>
+            </label>
+
+            <textarea
+              id="description"
+              name="description"
+              [(ngModel)]="description"
+              placeholder="Describe your payment issue in detail..."
+              rows="5"
+              maxlength="100"
+              required>
+            </textarea>
+
+            <div class="character-count">
+              {{ description.length }}/100 characters
+            </div>
+
+          </div>
+
+          <!-- Submit Button -->
+          <div class="form-footer">
+
+            <p>
+              <span>*</span> Required fields
+            </p>
+
+            <button
+              type="submit"
+              class="submit-button"
+              [disabled]="submitting || !queryForm.valid">
+
+              <span *ngIf="!submitting">Submit Query →</span>
+              <span *ngIf="submitting">Submitting...</span>
+
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+      <!-- My Queries -->
+      <div class="my-queries-panel">
+
+        <div class="queries-heading">
+
+          <div>
+            <h3>My Queries</h3>
+            <p>Track the status of your submitted queries.</p>
+          </div>
+
+          <button
+            type="button"
+            class="refresh-button"
+            (click)="loadQueries()"
+            [disabled]="loading">
+            ↻ Refresh
+          </button>
+
+        </div>
+
+        <!-- Loading -->
+        <div class="loading-message" *ngIf="loading">
+          Loading your queries...
+        </div>
+
+        <!-- Query History -->
+        <div
+          class="queries-table-container"
+          *ngIf="!loading && queries.length > 0">
+
+          <table class="queries-table">
+
+            <thead>
+              <tr>
+                <th>Query Date</th>
+                <th>Query Type</th>
+                <th>Pay Period</th>
+                <th>Issue Description</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              <tr *ngFor="let query of queries">
+
+                <td>
+                  {{ formatDate(query.created_at) }}
+                </td>
+
+                <td>
+                  <strong>{{ query.subject }}</strong>
+                </td>
+
+                <td>
+                  {{ query.subject.split(' - ').slice(1).join(' - ') || '—' }}
+                </td>
+
+                <td class="description-cell">
+                  {{ query.message }}
+                </td>
+
+                <td>
+                  <span
+                    class="query-status"
+                    [ngClass]="getQueryStatusClass(query.status)">
+
+                    <span class="status-dot"></span>
+                    {{ query.status }}
+
+                  </span>
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+        <!-- Empty State -->
+        <div
+          class="empty-state"
+          *ngIf="!loading && queries.length === 0">
+
+          <div class="empty-icon">✉</div>
+
+          <h3>No Queries Yet</h3>
+
+          <p>
+            You haven't submitted any payment queries.
+            Use the form above to raise your first query.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
